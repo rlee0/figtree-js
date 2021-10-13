@@ -1,0 +1,33 @@
+{
+  "name": "react-json-fp",
+  "version": "0.0.1",
+  "description": "React toolkit for shipping code-as-data using json and functional programming methods.",
+  "author": {
+    "name": "rlee0",
+    "url": "https://github.com/rlee0"
+  },
+  "license": "MIT",
+  "main": "dist/index.js",
+  "devDependencies": {
+    "@babel/core": "^7.15.8",
+    "@babel/preset-env": "^7.15.8",
+    "@babel/preset-react": "^7.14.5",
+    "deepmerge": "^4.2.2",
+    "iter-path": "^1.0.2",
+    "lodash": "^4.17.21",
+    "object-path-immutable": "^4.1.2",
+    "react": "^17.0.2",
+    "recoil": "^0.4.1",
+    "rollup-plugin-babel": "^4.4.0",
+    "rollup-plugin-commonjs": "^10.1.0",
+    "rollup-plugin-node-resolve": "^5.2.0",
+    "rollup": "^2.58.0"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "rollup -c && yalc push --replace"
+  },
+  "keywords": [
+    "react"
+  ]
+}
