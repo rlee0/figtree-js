@@ -1,112 +1,83 @@
-/* eslint-disable no-unused-vars */
-import {
-  del as _del,
-  get as _get,
-  insert as _insert,
-  push as _push,
-  set as _set,
-  update as _update,
-} from "object-path-immutable"
+import { get as _get, set as _set } from "object-path-immutable";
 
-import _flow from "lodash/flow"
-import iterPath from "iter-path"
+import _flow from "lodash/flow";
 
-const eq = {
-  "===": (a, b) => a === b,
-  "!==": (a, b) => a !== b,
-  "<": (a, b) => a < b,
-  ">": (a, b) => a > b,
-  "<=": (a, b) => a <= b,
-  ">=": (a, b) => a >= b,
-}
+const $flow = () => (fns) => (e) => {
+  return _flow(fns.map((fn) => (typeof fn === "function" ? fn : () => fn)))(e);
+};
+
+const $value = () => (fns) => _flow(fns)();
+
+const $getData =
+  ({ getData }) =>
+  (args) =>
+  () => {
+    const [path] = args;
+    return getData(path);
+  };
+
+const $setData =
+  ({ setData }) =>
+  (args) =>
+  (prev) => {
+    const [path] = args;
+    return setData(path, prev);
+  };
+
+const $get = () => (args) => (e) => {
+  const [path] = args;
+  return _get(e, path);
+};
+
+const $set = () => (args) => (e) => {
+  const [path] = args;
+  return _set(e, path);
+};
+
+const $log = () => () => (prev) => {
+  return console.log(prev);
+};
+
+const $stringify = () => (args) => (prev) => {
+  const [replacer, space] = args;
+  return JSON.stringify(prev, replacer, space);
+};
+
+const $fetch = () => (fns) => (prev) => {
+  return fetch(prev)
+    .then((response) => response.json())
+    .then((json) => _flow(fns)(json))
+    .catch((err) => console.error(err.message));
+};
+
+const $map = () => (fns) => (prev) => {
+  return prev.map((...p) => _flow(fns)(p));
+};
+
+const $template = () => (args) => (prev) => {
+  const [, index] = prev;
+  const [source, propName] = args;
+  return {
+    ...source,
+    overrides: {
+      ...source.overrides,
+      [propName || "index"]: index.toString(),
+    },
+  };
+};
 
 const actions = {
-  $flow: () => (args) => (prev) => {
-    const actionArgs = args.map((arg) => {
-      if (typeof arg !== "function") return () => arg
-      return arg
-    })
-    return _flow(actionArgs)(prev)
-  },
-  $getStore:
-    ({ getStore }) =>
-    (args) => {
-      return getStore(args[0])
-    },
-  $setStore:
-    ({ setStore }) =>
-    (args) =>
-    (prev) => {
-      const [path] = args
-      if (!prev) return setStore(path, null)
-      return setStore(path, prev)
-    },
-  $update: () => (args) => (prev) => {
-    const [path, fn] = args
-    return _update(prev, path, fn)
-  },
-  $delete: () => (args) => (prev) => {
-    const [path] = args
-    return _del(prev, path)
-  },
-  $insert: () => (args) => (prev) => {
-    const [path, newValue, index] = args
-    return _insert(prev, path, newValue, index)
-  },
-  $push: () => (args) => (prev) => {
-    const [path, newValue] = args
-    return _push(prev, path, newValue)
-  },
-  $log: () => () => (prev) => {
-    return console.log(prev)
-  },
-  $get: () => (args) => (prev) => {
-    const [path] = args
-    return _get(prev, path)
-  },
-  $stringify: () => (args) => (prev) => {
-    return JSON.stringify(prev, ...args)
-  },
-  $parse: () => (args) => (prev) => {
-    try {
-      return JSON.parse(prev, args)
-    } catch (err) {
-      console.error(err.message)
-    }
-  },
-  $fetch: () => (args) => (prev) => {
-    return fetch(prev)
-      .then((response) => response.json())
-      .then((json) => _flow(args)(json))
-      .catch((err) => console.error(err.message))
-  },
-  $map: () => (args) => (prev) => {
-    if (!prev) return
-    return prev.map((p) => _flow(args)(p))
-  },
-  $template: () => (args) => (prev) => {
-    const source = args[0]
-    const contFn = (value) => typeof value === "string"
-    const stopFn = () => false
-    const replacer = (value) =>
-      value.replace(/\{\{(.*?)\}\}/g, (_, matchGroup) => _get(prev, matchGroup))
-    return iterPath(source, replacer, [contFn, stopFn])
-  },
-  $length: () => () => (prev) => {
-    return prev.length
-  },
-  $check: () => (args) => (prev) => {
-    const [op, comparator, valueTrue, valueFalse] = args
-    return eq[op](
-      prev,
-      typeof comparator === "function" ? comparator() : comparator
-    )
-      ? valueTrue
-      : valueFalse
-  },
-  $assign: () => (args) => () => {
-    return args.join("")
-  },
-}
+  $value,
+  $flow,
+  $getData,
+  $setData,
+  $get,
+  $set,
+  $log,
+  $stringify,
+  $fetch,
+  $map,
+  $template,
+};
 
-export default actions
+export default actions;

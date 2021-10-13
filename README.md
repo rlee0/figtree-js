@@ -23,7 +23,7 @@ yarn add react-json-fp
 ## Usage
 
 ```jsx
-import ReactJsonFP from "react-json-fp"
+import ReactJsonFP from "react-json-fp";
 
 const App = () => {
   return (
@@ -34,8 +34,8 @@ const App = () => {
       actions={actions}
       components={components}
     />
-  )
-}
+  );
+};
 ```
 
 The required `entry` prop is the key of the element in `elements.json` that will serve as the component's entrypoint.
@@ -95,18 +95,18 @@ Functions can be defined and referenced by elements. The `get`, `set`, and `getE
 ##### /actions.js
 
 ```jsx
-import { actions as defaultActions } from "react-json-fp"
+import { actions as defaultActions } from "react-json-fp";
 
 const $find = () => (args) => (prev) => {
-  const [path] = args
-  const res = path.split(".").reduce((res, prop) => res[prop], prev)
-  if (!res) return null
-  return res
-}
+  const [path] = args;
+  const res = path.split(".").reduce((res, prop) => res[prop], prev);
+  if (!res) return null;
+  return res;
+};
 
-const actions = { ...defaultActions, $find }
+const actions = { ...defaultActions, $find };
 
-export default actions
+export default actions;
 ```
 
 #### Using a component library
@@ -116,11 +116,11 @@ An element can use a React component if they are included in the `library` prop.
 ##### /components.js
 
 ```javascript
-import { Input } from "antd"
+import { Input } from "antd";
 
-const components = { Input }
+const components = { Input };
 
-export default components
+export default components;
 ```
 
 ## License

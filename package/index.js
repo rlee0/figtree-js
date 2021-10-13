@@ -1,5 +1,7 @@
-import { Element, Root } from "./components"
+import "./wdyr";
 
-import actions from "./actions"
-export { Root, Element, actions }
-export default Root
+import Root from "./Root";
+import actions from "./actions";
+
+export { actions, Root };
+export default Root;
