@@ -9,7 +9,7 @@ import {
 } from "object-path-immutable"
 
 import _flow from "lodash/flow"
-import iterPath from "iter-path"
+import { iterPath } from "../helpers"
 
 const eq = {
   "===": (a, b) => a === b,
@@ -38,7 +38,7 @@ const actions = {
     (args) =>
     (prev) => {
       const [path] = args
-      if (!prev) return setStore(path, null)
+      if (!prev) return setStore(path, [])
       return setStore(path, prev)
     },
   $update: () => (args) => (prev) => {
@@ -86,11 +86,10 @@ const actions = {
   },
   $template: () => (args) => (prev) => {
     const source = args[0]
-    const contFn = (value) => typeof value === "string"
-    const stopFn = () => false
+    const contFn = (o) => typeof o === "string"
     const replacer = (value) =>
       value.replace(/\{\{(.*?)\}\}/g, (_, matchGroup) => _get(prev, matchGroup))
-    return iterPath(source, replacer, [contFn, stopFn])
+    return iterPath(source, replacer, [contFn])
   },
   $length: () => () => (prev) => {
     return prev.length

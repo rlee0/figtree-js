@@ -25,7 +25,8 @@
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "rollup -c && yalc push --replace"
+    "build": "rollup -c && yalc push --replace && cd ../sequela && yalc update --replace && yarn start",
+    "serve": "rollup -c && yalc push --replace && cd ../sequela && yalc update --replace && yarn serve"
   },
   "keywords": [
     "react"

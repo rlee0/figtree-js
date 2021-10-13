@@ -1,3 +1,4 @@
+import _clone from "lodash/clone"
 import _concat from "lodash/concat"
 import _flatMap from "lodash/flatMap"
 import _forOwn from "lodash/forOwn"
@@ -5,6 +6,21 @@ import _has from "lodash/has"
 import _isEqual from "lodash/isEqual"
 import _transform from "lodash/transform"
 import deepmerge from "deepmerge"
+
+export const iterPath = (obj, replacer, options, path = []) => {
+  const contFn = options[0] ? options[0] : () => true
+  const stopFn = options[1] ? options[1] : () => false
+  if (stopFn(obj, { path }) === true) return obj
+  let newObj = _clone(obj)
+  if (typeof obj === "object") {
+    Object.keys(obj).forEach((k) => {
+      const newPath = [...path, k]
+      newObj[k] = iterPath(obj[k], replacer, options, newPath)
+    })
+  }
+  if (contFn(obj, { path }) === true) return replacer(newObj)
+  return newObj
+}
 
 export const combineMerge = (target, source, options) => {
   const destination = target.slice()

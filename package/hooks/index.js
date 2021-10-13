@@ -1,16 +1,8 @@
-import {
-  push as _add,
-  del as _del,
-  get as _get,
-  insert as _ins,
-  set as _set,
-  update as _upd,
-} from "object-path-immutable"
+import { get as _get, set as _set } from "object-path-immutable"
 import {
   atomFamily,
   selectorFamily,
   useRecoilCallback,
-  useRecoilValue,
   useRecoilValueLoadable,
 } from "recoil"
 import { diff, getAllPaths } from "../helpers"
@@ -45,8 +37,7 @@ const storeSelector = selectorFamily({
 
 export const getStore = () => {
   const loadable = useRecoilValueLoadable(store(""))
-  return (path) =>
-    loadable.valueMaybe() ? _get(loadable.valueMaybe(), path) : null
+  return (path) => _get(loadable.contents, path)
 }
 
 export const setStore = () =>
