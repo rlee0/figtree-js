@@ -1,77 +1,88 @@
 import * as imm from "object-path-immutable";
 
-import { RJFPElement } from "./Root";
+import { iterate, onAction, onElement, onParam, revIterate } from "./helpers";
+
 import React from "react";
-import _merge from "lodash/merge";
+import _flow from "lodash/flow";
 import _omit from "lodash/omit";
 import _set from "lodash/set";
-import { createElement } from "react";
-import { isAction } from "./helpers";
 
-const createStore = (set) => (v) => set((prev) => ({ ...prev, ...v }));
-const getData = (get) => (p) => imm.get(get().data, p);
-const setData = (set) => (p, v) => {
-  set((prev) => imm.set(prev, `data.${p}`, v));
-};
-const replaceTemplate = (get) => (el) => {
-  const template = get().elements[el.as];
-  return template ? _merge(template, _omit(el, "as")) : el;
-};
-const replaceOverride = (el) => {
-  let n = {};
-  Object.keys(el).forEach((p) => _set(n, p, el[p]));
-  return n;
-};
-const replaceComponent = (get) => (el) => {
-  _set(el, "as", get().components[el.as] || el.as);
-  return el;
-};
-const replaceParams = (get) => (obj) => {
-  return obj.map((o) => {
-    if (typeof o !== "object" || o.as) return o;
-    if (isAction(o)) return get().replaceAction(o);
-    Object.keys(o).forEach((k) => _set(o, k, get().replaceParams(o[k])));
-    return o;
-  });
-};
-const replaceAction = (get) => (el) => {
-  if (!el || typeof el !== "object") return el;
-  if (isAction(el)) {
-    const actionType = Object.keys(el)[0];
-    const args = get().replaceParams(el[actionType]);
-    const action = get().actions[actionType];
-    const res = get().replaceAction(
-      action({ getData: get().getData, setData: get().setData })(args)
-    );
-    return res;
-  }
-  Object.keys(_omit(el, "as")).forEach((propName) => {
-    const propValue = imm.get(el, propName);
-    el[propName] = get().replaceAction(propValue); // useCallback??
-  });
-  return el;
-};
+const initializeStore = (set) => (v) => set(v);
 
-const renderElement = (el, path) => {
-  const key = path.join(".");
-  const { as, children, ...props } = el;
-  return (
-    <RJFPElement key={key} as={as} {...props}>
-      {children}
-    </RJFPElement>
+const callbacks = (get, set) => ({
+  getData: (p) => imm.get(get().data, p),
+  setData: (p, v) => set((prev) => ({ data: imm.set(prev.data, p, v) })),
+});
+
+const replaceOverride = (get) => (obj) => {
+  return revIterate(
+    obj,
+    _flow([
+      (o) => {
+        const template = get().elements[o.as];
+        return template ? imm.merge(template, _omit(o, "as")) : o;
+      },
+      (o) => {
+        Object.keys(o).forEach((p) => _set(o, p, o[p]));
+        return o;
+      },
+    ]),
+    onElement
   );
 };
 
+const replaceArgs = (get) => (obj) => {
+  const actionReplacer = get().replaceAction;
+  return iterate(obj, actionReplacer, onParam);
+};
+
+const replaceAction = (get) => (obj) => {
+  const replaceArgs = get().replaceArgs;
+  const callbacks = get().callbacks;
+  return iterate(
+    obj,
+    (o) => {
+      const actionType = Object.keys(o)[0];
+      const action = get().actions[actionType];
+      const args = replaceArgs(o[actionType]);
+      return action(callbacks)(args) || "";
+    },
+    onAction
+  );
+};
+
+const replaceElement = (get) => (obj) => {
+  return revIterate(
+    obj,
+    (o, key) => {
+      const { as, children, ...props } = o;
+      const Component = get().components[as] || as;
+      return (
+        <Component key={key} {...props}>
+          {children}
+        </Component>
+      );
+    },
+    onElement
+  );
+};
+
+const createRJFPElement = (get) => (obj) => {
+  return _flow([
+    get().replaceOverride,
+    get().replaceAction,
+    get().replaceElement,
+  ])(obj);
+};
+
 const store = (set, get) => ({
-  createStore: createStore(set),
-  getData: getData(get),
-  setData: setData(set),
-  replaceTemplate: replaceTemplate(get),
-  replaceComponent: replaceComponent(get),
-  replaceParams: replaceParams(get),
+  initializeStore: initializeStore(set),
+  callbacks: callbacks(get, set),
+  replaceOverride: replaceOverride(get),
+  replaceArgs: replaceArgs(get),
   replaceAction: replaceAction(get),
-  renderElement,
-  replaceOverride,
+  replaceElement: replaceElement(get),
+  createRJFPElement: createRJFPElement(get),
 });
 
 export default store;

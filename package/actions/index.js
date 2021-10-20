@@ -2,11 +2,11 @@ import { get as _get, set as _set } from "object-path-immutable";
 
 import _flow from "lodash/flow";
 
+const $value = () => (fns) => _flow(fns)();
+
 const $flow = () => (fns) => (e) => {
   return _flow(fns.map((fn) => (typeof fn === "function" ? fn : () => fn)))(e);
 };
-
-const $value = () => (fns) => _flow(fns)();
 
 const $getData =
   ({ getData }) =>
@@ -26,12 +26,12 @@ const $setData =
 
 const $get = () => (args) => (e) => {
   const [path] = args;
-  return _get(e, path);
+  return _get(e, path) || null;
 };
 
 const $set = () => (args) => (e) => {
   const [path] = args;
-  return _set(e, path);
+  return _set(e, path) || null;
 };
 
 const $log = () => () => (prev) => {
@@ -56,28 +56,36 @@ const $map = () => (fns) => (prev) => {
 
 const $template = () => (args) => (prev) => {
   const [, index] = prev;
-  const [source, propName] = args;
-  return {
-    ...source,
-    overrides: {
-      ...source.overrides,
-      [propName || "index"]: index.toString(),
-    },
-  };
-};
+  const [source, label] = args;
 
+  const iterate = (obj, replacer) => {
+    let newObj = replacer(obj);
+    if (typeof newObj !== "object") return newObj;
+    Object.keys(newObj).forEach((k) => {
+      newObj = _set(newObj, k, iterate(newObj[k], replacer));
+    });
+    return newObj;
+  };
+  return iterate(source, (o) => {
+    if (typeof o !== "string") return o;
+    return o.replace(/\{\{(.*?)\}\}/gim, (match, group) => {
+      if (group === label) return index.toString();
+      return match;
+    });
+  });
+};
 const actions = {
-  $value,
-  $flow,
-  $getData,
-  $setData,
-  $get,
-  $set,
-  $log,
-  $stringify,
   $fetch,
+  $flow,
+  $get,
+  $getData,
+  $log,
   $map,
+  $set,
+  $setData,
+  $stringify,
   $template,
+  $value,
 };
 
 export default actions;

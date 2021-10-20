@@ -1,5 +1,3 @@
-import "./wdyr";
-
 import Root from "./Root";
 import actions from "./actions";
 
