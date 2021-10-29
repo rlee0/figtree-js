@@ -31,10 +31,10 @@ const store = (set, get) => {
     };
     return iter(componentReplacer, onElement)(obj);
   };
+
   const replaceActions = (obj) => {
     const actions = get().actions;
     const data = get().data;
-
     const callbacks = {
       getData: (p) => _get(data, p),
       setData: (p, v) => set({ data: _set(data, p, v) }),
@@ -47,6 +47,7 @@ const store = (set, get) => {
     };
     return iter(actionReplacer, onAction)(obj);
   };
+
   const replaceOverrides = (obj) => {
     const overrides = get().overrides;
     const overrideReplacer = (o) => {
@@ -58,6 +59,7 @@ const store = (set, get) => {
     };
     return iter(overrideReplacer, onOverride)(obj);
   };
+
   const replaceTemplates = (obj) => {
     const elements = get().elements;
     const templateReplacer = (o) => {
@@ -71,11 +73,12 @@ const store = (set, get) => {
     };
     return iter(templateReplacer, onElement)(obj);
   };
+
   return {
-    replaceComponents,
-    replaceActions,
-    replaceOverrides,
     replaceTemplates,
+    replaceOverrides,
+    replaceActions,
+    replaceComponents,
   };
 };
 
@@ -87,7 +90,7 @@ const setState = useStore.setState;
 
 const subscribe = useStore.subscribe;
 
-export const useReactJsonFp = (raw) => {
+const useReactJsonFp = (raw) => {
   const [config, setConfig] = useState(raw);
   useEffect(() => {
     return subscribe((state) => setConfig(_pick(state, Object.keys(raw))));
@@ -101,7 +104,7 @@ export const useReactJsonFp = (raw) => {
   return [config, setConfig];
 };
 
-export default function ReactJsonFp(raw) {
+const ReactJsonFp = (raw) => {
   const [element, setElement] = useState(null);
   useEffect(() => {
     if (!raw) return;
@@ -119,4 +122,8 @@ export default function ReactJsonFp(raw) {
     );
   }, [raw]);
   return element;
-}
+};
+
+export { useReactJsonFp };
+
+export default ReactJsonFp;

@@ -1,8 +1,6 @@
 import { get as _get, set as _set } from "object-path-immutable";
 
 import _flow from "lodash/flow";
-import _isEqual from "lodash/isEqual";
-import { iter } from "./helpers";
 
 const $value = () => (fns) =>
   _flow(fns.map((fn) => (typeof fn !== "function" ? () => fn : fn)))();
@@ -24,20 +22,21 @@ const $getData =
   (args) =>
   () => {
     const [path] = args;
-    return getData(path);
+    return getData(path || "");
   };
 
 const $setData =
-  ({ setData }) =>
+  ({ getData, setData }) =>
   (args) =>
   (prev) => {
-    const [path] = args;
-    return setData(path, prev);
+    const [path, value] = args;
+    setData(path, value || prev);
+    return getData(path, value || prev);
   };
 
-const $get = () => (args) => (e) => {
-  const [path] = args;
-  return _get(e, path) || null;
+const $get = () => (args) => (prev) => {
+  const [path, value] = args;
+  return _get(value || prev, path) || null;
 };
 
 const $set = () => (args) => (e) => {
@@ -46,7 +45,7 @@ const $set = () => (args) => (e) => {
 };
 
 const $log = () => () => (prev) => {
-  return console.log(prev);
+  console.log(prev);
 };
 
 const $stringify = () => (args) => (prev) => {
@@ -54,32 +53,43 @@ const $stringify = () => (args) => (prev) => {
   return JSON.stringify(prev, replacer, space);
 };
 
-const $fetch =
-  ({ getData, setData }) =>
-  () =>
-  (url) => {
-    fetch(url)
-      .then((res) => res.text())
-      .then((text) => {
-        const prev = getData(url);
-        if (_isEqual(prev, text)) return;
-        setData(url, text);
-      })
-      .catch(() => setData(url, null));
-    const res = getData(url);
-    if (!res) return;
-    return res;
-  };
-
 const $map = () => (fns) => (prev) => {
-  return prev.map((...prev) => _flow(fns)(prev));
+  return prev.map((item, index) => _flow(fns)([item, index.toString()]));
 };
 
 const $template = () => (args) => (prev) => {
-  const [source, label] = args;
-  const replacer = (o) =>
-    o.replace(/%(.*?)%/, (match, group) => (group === label ? prev : match));
-  return iter(replacer, [(o) => !o, (o) => typeof o !== "object"])(source);
+  const [source] = args;
+  const replacer = (o) => {
+    if (Array.isArray(o))
+      return o.map((p) => {
+        if (p === "%%") return prev;
+        return replacer(p);
+      });
+    if (typeof o === "object") {
+      let newObj = {};
+      Object.keys(o).forEach((k) => {
+        if (o[k] === "%%") newObj = prev;
+        else newObj[k] = replacer(o[k]);
+      });
+      return newObj;
+    }
+    if (typeof o === "string") {
+      return o
+        .replace(/%%/g, prev)
+        .replace(/%([\w|-]+)%/g, (match, group) => _get(prev, group) || []);
+    }
+    return o;
+  };
+  return replacer(source);
+};
+
+const $fetch = () => (fns) => (url) => {
+  fetch(url)
+    .then((res) => res.json())
+    .then((json) => {
+      _flow(fns)(json);
+    })
+    .catch(console.error);
 };
 
 const actions = {

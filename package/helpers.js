@@ -1,6 +1,6 @@
 import deepmerge from "deepmerge";
 
-export const isElement = (obj) => obj && typeof obj === "object" && obj.as;
+const isElement = (o) => o && typeof o === "object" && o.as;
 
 const isAction = (o) =>
   o &&
@@ -25,8 +25,16 @@ export const iter = (replacer, [breakFn, continueFn], currPath) => {
 };
 
 export const onElement = [(o) => !o || typeof o !== "object", isElement];
-export const onParam = [(o) => !o || typeof o !== "object" || o.as, isAction];
+
+export const onParam = [
+  (o) => {
+    return !o || typeof o !== "object" || o.as;
+  },
+  isAction,
+];
+
 export const onAction = [(o) => !o || typeof o !== "object", isAction];
+
 export const onOverride = [(o) => !o, (o) => typeof o === "string"];
 
 export const combineMerge = (target, source, options) => {
