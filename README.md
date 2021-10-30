@@ -19,7 +19,7 @@ Or if you're using yarn:
 ## Usage
 
 ```jsx
-import ReactJsonFP from "react-json-fp";
+import ReactJsonFP from 'react-json-fp'
 
 const App = () => {
   return (
@@ -30,8 +30,8 @@ const App = () => {
       actions={actions}
       components={components}
     />
-  );
-};
+  )
+}
 ```
 
 The required `entry` prop is the key of the element in `elements.json` that will be
@@ -46,21 +46,21 @@ Elements can use HTML tags or reference each other using the `as` field. When re
 {
   Demo:
     {
-      as: "div",
+      as: 'div',
       style:
         {
-          padding: "1rem",
-          background: { $value: [{ $getData: ["favorite_color"] }] },
+          padding: '1rem',
+          background: { $value: [{ $getData: ['favorite_color'] }] },
         },
-      children: [{ as: "Input" }, { as: "Button" }],
+      children: [{ as: 'Input' }, { as: 'Button' }],
     },
   Input:
     {
-      as: "input",
-      value: { $value: [{ $getData: ["favorite_color"] }] },
+      as: 'input',
+      value: { $value: [{ $getData: ['favorite_color'] }] },
       onChange:
         {
-          $flow: [{ $get: ["target.value"] }, { $setData: ["favorite_color"] }],
+          $flow: [{ $get: ['target.value'] }, { $setData: ['favorite_color'] }],
         },
     },
 }
@@ -73,7 +73,7 @@ Initial data is accessible as state via callbacks in `actions.json`.
 #### /data.json
 
 ```yaml
-{ "favorite_color": "magenta" }
+{ 'favorite_color': 'magenta' }
 ```
 
 ### Writing your own actions
@@ -83,18 +83,18 @@ Functions can be defined and referenced by elements. The `getData`, `setData`, a
 #### /actions.js
 
 ```jsx
-import { actions as defaultActions } from "react-json-fp";
+import { actions as defaultActions } from 'react-json-fp'
 
 const $log =
   ({ getData }) =>
   (args) => {
-    const [path] = args;
-    console.log(getData(path));
-  };
+    const [path] = args
+    console.log(getData(path))
+  }
 
-const actions = { ...defaultActions, $find };
+const actions = { ...defaultActions, $find }
 
-export default actions;
+export default actions
 ```
 
 ### Using a component library
@@ -104,11 +104,11 @@ An element can use a React component if they are included in the `components` pr
 #### /components.js
 
 ```javascript
-import { Input } from "antd";
+import { Input } from 'antd'
 
-const components = { Input };
+const components = { Input }
 
-export default components;
+export default components
 ```
 
 ## License

@@ -1,6 +1,6 @@
-import ReactJsonFp, { useReactJsonFp } from "./store";
+import ReactJsonFp, { useReactJsonFp } from './store'
 
-import actions from "./actions";
+import actions from './actions'
 
-export { useReactJsonFp, actions };
-export default ReactJsonFp;
+export { useReactJsonFp, actions }
+export default ReactJsonFp
