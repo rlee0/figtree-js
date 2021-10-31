@@ -21,8 +21,8 @@ const $getData =
   ({ getData }) =>
   (args) =>
   (prev) => {
-    if (prev) return getData(prev)
-    return getData(args[0] || '')
+    if (args && args[0]) return getData(args[0] || '')
+    return getData(prev)
   }
 
 const $setData =
@@ -55,6 +55,7 @@ const $stringify = () => (args) => (prev) => {
 }
 
 const $map = () => (fns) => (prev) => {
+  if (!prev) return null
   return prev.map((item, index) => _flow(fns)([item, index.toString()]))
 }
 
@@ -101,12 +102,12 @@ const $fetch = () => (fns) => (url) => {
 const actions = {
   $fetch,
   $flow,
-  // $get,
+  $get,
   $getData,
   $entries,
   $log,
   $map,
-  // $set,
+  $set,
   $setData,
   $stringify,
   $template,
