@@ -17,7 +17,7 @@ export const iter = (replacer, [breakFn, continueFn], currPath) => {
     if (typeof obj !== 'object') return obj
     const newObj = Array.isArray(obj) ? [] : {}
     for (const k in obj) {
-      const nextPath = currPath ? `${currPath}.${k}` : k
+      const nextPath = currPath ? currPath.concat('.'.concat(k)) : k
       newObj[k] = iter(replacer, [breakFn, continueFn], nextPath)(obj[k])
     }
     return newObj
