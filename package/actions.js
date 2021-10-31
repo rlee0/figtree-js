@@ -5,18 +5,6 @@ import _flow from 'lodash/flow'
 const $value = () => (fns) =>
   _flow(fns.map((fn) => (typeof fn !== 'function' ? () => fn : fn)))()
 
-const $flow = () => (fns) => {
-  let isFn = false
-  const flowFn = _flow(
-    fns.map((fn, f) => {
-      if (f === 0 && typeof fn === 'function') isFn = true
-      return typeof fn === 'function' ? fn : () => fn
-    })
-  )
-  if (isFn === true) return flowFn
-  return flowFn()
-}
-
 const $getData =
   ({ getData }) =>
   (args) =>
@@ -33,16 +21,6 @@ const $setData =
     setData(path, value || prev)
     return getData(path, value || prev)
   }
-
-const $get = () => (args) => (prev) => {
-  const [path, value] = args
-  return _get(value || prev, path) || null
-}
-
-const $set = () => (args) => (e) => {
-  const [path] = args
-  return _set(e, path) || null
-}
 
 const $log = () => () => (prev) => {
   console.log(prev)
@@ -86,10 +64,6 @@ const $template = () => (args) => (prev) => {
   return replacer(source)
 }
 
-const $entries = () => () => (prev) => {
-  return Object.entries(prev)
-}
-
 const $fetch = () => (fns) => (url) => {
   fetch(url)
     .then((res) => res.json())
@@ -101,13 +75,9 @@ const $fetch = () => (fns) => (url) => {
 
 const actions = {
   $fetch,
-  $flow,
-  $get,
   $getData,
-  $entries,
   $log,
   $map,
-  $set,
   $setData,
   $stringify,
   $template,
