@@ -20,9 +20,9 @@ const $flow = () => (fns) => {
 const $getData =
   ({ getData }) =>
   (args) =>
-  () => {
-    const [path] = args
-    return getData(path || '')
+  (prev) => {
+    if (prev) return getData(prev)
+    return getData(args[0] || '')
   }
 
 const $setData =
@@ -61,11 +61,12 @@ const $map = () => (fns) => (prev) => {
 const $template = () => (args) => (prev) => {
   const [source] = args
   const replacer = (o) => {
-    if (Array.isArray(o))
+    if (Array.isArray(o)) {
       return o.map((p) => {
         if (p === '%%') return prev
         return replacer(p)
       })
+    }
     if (typeof o === 'object') {
       let newObj = {}
       Object.keys(o).forEach((k) => {
@@ -77,7 +78,7 @@ const $template = () => (args) => (prev) => {
     if (typeof o === 'string') {
       return o
         .replace(/%%/g, prev)
-        .replace(/%(\S+)%/g, (match, group) => _get(prev, group) || [])
+        .replace(/%(\S+)%/g, (_m, group) => _get(prev, group) || [])
     }
     return o
   }
