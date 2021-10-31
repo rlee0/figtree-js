@@ -85,6 +85,10 @@ const $template = () => (args) => (prev) => {
   return replacer(source)
 }
 
+const $entries = () => () => (prev) => {
+  return Object.entries(prev)
+}
+
 const $fetch = () => (fns) => (url) => {
   fetch(url)
     .then((res) => res.json())
@@ -99,6 +103,7 @@ const actions = {
   $flow,
   $get,
   $getData,
+  $entries,
   $log,
   $map,
   $set,
