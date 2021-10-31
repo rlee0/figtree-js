@@ -46,6 +46,7 @@ const $set = () => (args) => (e) => {
 
 const $log = () => () => (prev) => {
   console.log(prev)
+  return prev
 }
 
 const $stringify = () => (args) => (prev) => {
@@ -76,7 +77,7 @@ const $template = () => (args) => (prev) => {
     if (typeof o === 'string') {
       return o
         .replace(/%%/g, prev)
-        .replace(/%([\w|-]+)%/g, (match, group) => _get(prev, group) || [])
+        .replace(/%(\S+)%/g, (match, group) => _get(prev, group) || [])
     }
     return o
   }
