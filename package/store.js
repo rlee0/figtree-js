@@ -16,70 +16,70 @@ import _set from 'lodash/set'
 import createZustand from 'zustand'
 import deepmerge from 'deepmerge'
 
+const replaceComponents = (get) => (obj) => {
+  const components = get().components
+  if (!components) return obj
+  const componentReplacer = (o, key) => {
+    const { as, children, ...props } = o
+    const Component = components[as] || as
+    return (
+      <Component key={key} id={key} {...props}>
+        {children && <>{children}</>}
+      </Component>
+    )
+  }
+  return iter(componentReplacer, onElement)(obj)
+}
+
+const replaceActions = (get, set) => (obj) => {
+  const actions = get().actions
+  const data = get().data
+  if (!actions || !data) return obj
+  const callbacks = {
+    getData: (p) => _get(data, p),
+    setData: (p, v) => set({ data: _set(data, p, v) }),
+  }
+  const actionReplacer = (o) => {
+    const actionType = Object.keys(o)[0]
+    const args = iter(actionReplacer, onParam)(o[actionType])
+    return actions[actionType](callbacks)(args) || []
+  }
+  return iter(actionReplacer, onAction)(obj)
+}
+
+const replaceOverrides = (get) => (obj) => {
+  const overrides = get().overrides
+  if (!overrides) return obj
+  const overrideReplacer = (o) => {
+    return o.replace(/%(.*?)%/g, (m, g) => {
+      const res = iter(overrideReplacer, onOverride)(overrides[g]) || m
+      return typeof res !== 'object' ? res : JSON.parse(JSON.stringify(res))
+    })
+  }
+  return iter(overrideReplacer, onOverride)(obj)
+}
+
+const replaceTemplates = (get) => (obj) => {
+  const elements = get().elements
+  if (!elements) return obj
+  const templateReplacer = (o) => {
+    const { as, ...rest } = o
+    const template = elements[as]
+    if (!template) return o
+    return deepmerge(templateReplacer(template), rest, {
+      arrayMerge: combineMerge,
+    })
+  }
+  return iter(templateReplacer, onElement)(obj)
+}
+
 const useStore = createZustand((set, get) => {
-  const replaceComponents = (obj) => {
-    const components = get().components
-    if (!components) return obj
-    const componentReplacer = (o, key) => {
-      const { as, children, ...props } = o
-      const Component = components[as] || as
-      return (
-        <Component key={key} id={key} {...props}>
-          {children && <>{children}</>}
-        </Component>
-      )
-    }
-    return iter(componentReplacer, onElement)(obj)
-  }
-
-  const replaceActions = (obj) => {
-    const actions = get().actions
-    const data = get().data
-    if (!actions || !data) return obj
-    const callbacks = {
-      getData: (p) => _get(data, p),
-      setData: (p, v) => set({ data: _set(data, p, v) }),
-    }
-    const actionReplacer = (o) => {
-      const actionType = Object.keys(o)[0]
-      const args = iter(actionReplacer, onParam)(o[actionType])
-      return actions[actionType](callbacks)(args) || []
-    }
-    return iter(actionReplacer, onAction)(obj)
-  }
-
-  const replaceOverrides = (obj) => {
-    const overrides = get().overrides
-    if (!overrides) return obj
-    const overrideReplacer = (o) => {
-      return o.replace(/%(.*?)%/g, (m, g) => {
-        const res = iter(overrideReplacer, onOverride)(overrides[g]) || m
-        return typeof res !== 'object' ? res : JSON.parse(JSON.stringify(res))
-      })
-    }
-    return iter(overrideReplacer, onOverride)(obj)
-  }
-
-  const replaceTemplates = (obj) => {
-    const elements = get().elements
-    if (!elements) return obj
-    const templateReplacer = (o) => {
-      const { as, ...rest } = o
-      const template = elements[as]
-      if (!template) return o
-      return deepmerge(templateReplacer(template), rest, {
-        arrayMerge: combineMerge,
-      })
-    }
-    return iter(templateReplacer, onElement)(obj)
-  }
-
   const renderElement = (obj) => {
     return _flow([
-      replaceTemplates,
-      replaceOverrides,
-      replaceActions,
-      replaceComponents,
+      replaceTemplates(get),
+      replaceOverrides(get),
+      replaceActions(get, set),
+      replaceComponents(get),
     ])(obj)
   }
 
