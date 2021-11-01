@@ -13,10 +13,10 @@ import _get from 'lodash/get'
 import _isEqual from 'lodash/isEqual'
 import _pick from 'lodash/pick'
 import _set from 'lodash/set'
-import createZustand from 'zustand/vanilla'
+import createZustand from 'zustand'
 import deepmerge from 'deepmerge'
 
-const store = (set, get) => {
+const useStore = createZustand((set, get) => {
   const replaceComponents = (obj) => {
     const components = get().components
     if (!components) return obj
@@ -86,9 +86,7 @@ const store = (set, get) => {
   return {
     renderElement,
   }
-}
-
-const useStore = createZustand(store)
+})
 
 const getState = useStore.getState
 
