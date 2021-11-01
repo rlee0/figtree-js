@@ -74,11 +74,17 @@ const store = (set, get) => {
     return iter(templateReplacer, onElement)(obj)
   }
 
+  const createElement = (obj) => {
+    return _flow([
+      replaceTemplates,
+      replaceOverrides,
+      replaceActions,
+      replaceComponents,
+    ])(obj)
+  }
+
   return {
-    replaceTemplates,
-    replaceOverrides,
-    replaceActions,
-    replaceComponents,
+    createElement,
   }
 }
 
@@ -115,14 +121,7 @@ const ReactJsonFp = (raw) => {
     if (!raw) return
     const elements = getState().elements
     if (!elements) return
-    setElement(
-      _flow([
-        getState().replaceTemplates,
-        getState().replaceOverrides,
-        getState().replaceActions,
-        getState().replaceComponents,
-      ])(raw)
-    )
+    setElement(getState().createElement(raw))
   }, [raw])
   return element
 }
