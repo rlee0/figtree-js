@@ -74,7 +74,7 @@ const store = (set, get) => {
     return iter(templateReplacer, onElement)(obj)
   }
 
-  const createElement = (obj) => {
+  const renderElement = (obj) => {
     return _flow([
       replaceTemplates,
       replaceOverrides,
@@ -84,7 +84,7 @@ const store = (set, get) => {
   }
 
   return {
-    createElement,
+    renderElement,
   }
 }
 
