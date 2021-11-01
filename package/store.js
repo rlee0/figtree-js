@@ -13,8 +13,8 @@ import _get from 'lodash/get'
 import _isEqual from 'lodash/isEqual'
 import _pick from 'lodash/pick'
 import _set from 'lodash/set'
-import create from 'zustand/vanilla'
 import deepmerge from 'deepmerge'
+import zustandCreate from 'zustand/vanilla'
 
 const store = (set, get) => {
   const replaceComponents = (obj) => {
@@ -88,7 +88,7 @@ const store = (set, get) => {
   }
 }
 
-const useStore = create(store)
+const useStore = zustandCreate(store)
 
 const getState = useStore.getState
 
@@ -96,7 +96,7 @@ const setState = useStore.setState
 
 const subscribe = useStore.subscribe
 
-const useReactJsonFp = (raw) => {
+const create = (raw) => {
   const [config, setConfig] = useState()
 
   useEffect(() => {
@@ -126,6 +126,6 @@ const ReactJsonFp = (raw) => {
   return element
 }
 
-export { useReactJsonFp }
+export { create }
 
 export default ReactJsonFp
