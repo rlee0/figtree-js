@@ -91,9 +91,10 @@ const setState = useStore.setState
 const subscribe = useStore.subscribe
 
 const useReactJsonFp = (raw) => {
-  const [config, setConfig] = useState(raw)
+  const [config, setConfig] = useState()
 
   useEffect(() => {
+    setConfig(raw)
     return subscribe((state) => setConfig(_pick(state, Object.keys(raw))))
   }, [])
 
