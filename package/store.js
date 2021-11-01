@@ -92,14 +92,17 @@ const subscribe = useStore.subscribe
 
 const useReactJsonFp = (raw) => {
   const [config, setConfig] = useState(raw)
+
   useEffect(() => {
     return subscribe((state) => setConfig(_pick(state, Object.keys(raw))))
   }, [])
+
   useEffect(() => {
     if (!config) return
     if (_isEqual(config, _pick(getState(), Object.keys(config)))) return
     setState(config)
   }, [config])
+
   if (!raw) return
   return [config, setConfig]
 }
