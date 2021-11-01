@@ -19,11 +19,11 @@ Or if you're using yarn:
 ## Usage
 
 ```jsx
-import ReactJsonFP from 'react-json-fp'
+import JsonFp from 'react-json-fp'
 
 const App = () => {
   return (
-    <ReactJsonFP
+    <JsonFp
       entry="Demo"
       elements={elements}
       data={data}

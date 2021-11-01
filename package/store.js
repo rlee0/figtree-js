@@ -114,7 +114,7 @@ const useJsonFP = (raw) => {
   return [config, setConfig]
 }
 
-const ReactJsonFp = (raw) => {
+const JsonFp = (raw) => {
   const [element, setElement] = useState(null)
 
   useEffect(() => {
@@ -128,4 +128,4 @@ const ReactJsonFp = (raw) => {
 
 export { useJsonFP }
 
-export default ReactJsonFp
+export default JsonFp
