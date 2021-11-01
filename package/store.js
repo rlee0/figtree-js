@@ -109,19 +109,18 @@ const useReactJsonFp = (raw) => {
 
 const ReactJsonFp = (raw) => {
   const [element, setElement] = useState(null)
+
   useEffect(() => {
     if (!raw) return
     const elements = getState().elements
     if (!elements) return
-    const { as, ...rest } = raw
-    const template = elements[as] || { as }
     setElement(
       _flow([
         getState().replaceTemplates,
         getState().replaceOverrides,
         getState().replaceActions,
         getState().replaceComponents,
-      ])(deepmerge(template, rest, { arrayMerge: combineMerge }))
+      ])(raw)
     )
   }, [raw])
   return element
