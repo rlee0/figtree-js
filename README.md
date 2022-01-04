@@ -21,7 +21,7 @@ Figtree is a tiny React component that generates a component tree and manages it
 ## Playground
 
 - [Basic Demo](https://codesandbox.io/s/figtree-js-5q7ol)
-- [Realworld Demo](https://rlee0.github.io/figtree-realworld-demo)
+- [Realworld Demo](https://rlee0.github.io/figtree-realworld-dev)
 
 ## Installation
 
