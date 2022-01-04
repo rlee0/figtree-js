@@ -1,0 +1,45 @@
+{
+  "name": "figtree-js",
+  "version": "0.1.0",
+  "description": "React component that generates a component tree and manages its state, all from a static configuration file.",
+  "author": {
+    "name": "rlee0",
+    "url": "https://github.com/rlee0"
+  },
+  "license": "MIT",
+  "main": "dist/index.js",
+  "dependencies": {
+    "@babel/cli": "^7.16.0",
+    "@babel/core": "^7.16.5",
+    "@babel/eslint-parser": "^7.16.5",
+    "@babel/preset-react": "^7.16.5",
+    "eslint-plugin-react": "^7.27.1",
+    "ramda": "^0.27.1",
+    "react": "^17.0.2",
+    "react-scripts": "^5.0.0",
+    "zustand": "^3.6.8"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "rm -rf dist && mkdir dist && babel src -d dist --copy-files",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject",
+    "lint": "eslint .",
+    "lint:fix": "eslint --fix ."
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "keywords": [
+    "react"
+  ]
+}
